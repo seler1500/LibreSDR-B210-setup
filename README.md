@@ -1,14 +1,15 @@
-# LibreSDR-B210-setup
-Setting up LibreSDR B210 setup guide with uhd-oc and SatDump. I'm attempting to make a single guide to simplify the setup, original sources of parts of this guide are listed below.
+# LibreSDR B210 and USRP B210 setup
+Setting up LibreSDR B210 or genuine USRP B210 with uhd-oc and SatDump. I'm attempting to make a single guide to simplify the process, original sources of parts of this guide are listed below.
 I'll be using SatDump v2.0.0 (verywip), as it was recently patched to improve USRP stability on most devices. 
 ###### This guide was tested on Ubuntu 24.04.5 LTS
 
-# Prerequisites
+## Prerequisites
 
 - Ubuntu Linux or another Debian-based distribution
-- A USRP B210 LibreSDR clone (XC7A100T+AD9361 ONLY)
+- either USRP LibreSDR B210 mini (XC7A100T+AD9361 ONLY)  
+- or genuine USRP B210 (overclocking not tested yet!)
 
-# Credits and sources
+## Credits and sources
 Initial setup, FPGA image:  
 https://github.com/lmesserStep/LibreSDRB210  
 Overclocking the B210:  
@@ -16,7 +17,7 @@ https://github.com/MothMaux/uhd-oc
 *A generic satellite data processing software*, SatDump:  
 https://github.com/SatDump/SatDump  
 
-# Step 1 - Install UHD and SatDump dependencies
+## Step 1 - Install UHD and SatDump dependencies
 <details>
 
 <summary>Unmodified USRP Hardware Driver</summary>
@@ -24,7 +25,7 @@ https://github.com/SatDump/SatDump
 ```
 sudo add-apt-repository ppa:ettusresearch/uhd 
 sudo apt update 
-sudo apt install libuhd-dev uhd-host
+sudo apt install uhd-host
 ```
 </details>
 <details>
@@ -41,17 +42,22 @@ sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
 ```
 </details>
 
-# Step 2 - UHD Setup
+## Step 2 - UHD Setup
 First, you'll need to set up unomdified USRP Hardware Driver. 
 After installing it in step 1, you'll need to download firmware and FPGA images.
 
-### Install Python3 (if not already installed)
+#### Install Python3 (if not already installed)
 `sudo apt install python3`
-### Download firmware and FPGA images
+#### Download firmware and FPGA images
 `sudo /usr/lib/uhd/utils/uhd_images_downloader.py`   
 Once the images and firmware finish downloading, you can check if your SDR is properly detected by UHD.
 
-## LibreSDR B210
+#### Verify if UHD was set up properly
+
+### LibreSDR B210
+
+<details><summary>Verify UHD installation</summary>
+  
 ```
 $ uhd_usrp_probe
 [INFO] [UHD] linux; GNU C++ version 13.3.0; Boost_108300; UHD_4.9.0.0-0ubuntu1~noble3
@@ -60,13 +66,18 @@ $ uhd_usrp_probe
 [INFO] [B200] Loading FPGA image: /usr/share/uhd/4.9.0/images/usrp_b210_fpga.bin...
 Error: RuntimeError: fx3 is in state 5
 ```
-This is behaviour is expected, as Libre B210 requires a custom FPGA image to work properly. Replace it using:
-```
+</details>
+This behaviour is expected, as Libre B210 requires a custom FPGA image to work properly.
+
+<details><summary>Replacing FPGA image</summary>
+
+```bash
 wget https://github.com/lmesserStep/LibreSDRB210/raw/main/usrp_b210_fpga.bin
 sudo cp usrp_b210_fpga.bin /usr/share/uhd/4.9.0/images/
 ```
+</details>
 <details>
-<summary>Now verify again using</summary>
+<summary>Now verify again:</summary>
   
 ```
 $ uhd_usrp_probe
@@ -183,8 +194,37 @@ $ uhd_usrp_probe
 |   |   |   |   Gain Elements: None
 ```
 </details>
+This is the correct output for properly set up UHD.
 
+### Genuine USRP B210
+In the case of genuine USRPs, there's no need for replacing the FPGA images, it should work properly after downloading the firmware and images.
 
+## Step 3 (optional and at your own risk) - overclocking
+
+#### Building custom UHD with overclocking support
+
+<details><summary>Terminal</summary>
+  
+```bash
+# Clone repository
+git clone https://github.com/MothMaux/uhd-oc.git && cd uhd-oc
+# Create a build directory
+mkdir host/build && cd host/build
+# Build and install
+cmake ../
+make -j4 && sudo make install
+sudo ldconfig #reload libraries
+```
+</details>
+
+For now all you can do is verify, if the custom build was installed properly.
+
+<details><summary>Terminal</summary>
+  
+```bash
+uhd_usrp_probe
+```
+</details>
 
 
 
