@@ -1,16 +1,7 @@
 # LibreSDR B210 and USRP B210 setup
-Setting up LibreSDR B210 or genuine USRP B210 with uhd-oc and SatDump. I'm attempting to make a single guide to simplify the process, original sources of parts of this guide are listed below.
+Guide to set up Ettus USRP B210 or LibreSDR B210 with uhd-oc and SatDump on Debian/Ubuntu. I'm attempting to make a single guide to simplify the process, resources used in this guide are listed below.
 I'll be using SatDump v2.0.0 (verywip), as it was recently patched to improve USRP stability on most devices. 
-###### This guide was tested on Ubuntu 24.04.5 LTS
-
-
-
-## Prerequisites
-
-- Ubuntu Linux or another Debian-based distribution
-- either USRP LibreSDR B210 mini (XC7A100T+AD9361 ONLY)  
-- or genuine USRP B210 (overclocking not tested yet!)
-
+###### For Deb/Ubuntu - tested on Ubuntu 24.04.5 LTS
 
 
 ## Credits and sources
@@ -24,25 +15,7 @@ https://kb.ettus.com/Building_and_Installing_the_USRP_Open-Source_Toolchain_(UHD
 https://github.com/SatDump/SatDump  
 
 
-
-## Step 1 - Install SatDump dependencies
-<details>
-
-<summary>SatDump v2.0.0 Dependencies - Debian, Ubuntu, and other Debian-based distros</summary>
-
-```
-sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
-                 libtiff-dev libjemalloc-dev libcurl4-openssl-dev libvolk-dev libnng-dev \
-                 libglfw3-dev zenity portaudio19-dev libzstd-dev libhdf5-dev librtlsdr-dev \
-                 libhackrf-dev libairspy-dev libairspyhf-dev libad9361-dev libiio-dev \
-                 libbladerf-dev libomp-dev ocl-icd-opencl-dev intel-opencl-icd mesa-opencl-icd \
-                 libdbus-1-dev libsqlite3-dev
-```
-</details>
-
-
-
-## Step 2, Option 1 - unmodified USRP Hardware Driver (no overclocking capabilities)
+## Option 1 - Standard USRP Hardware Driver
 #### Install UHD
 <details>
 
@@ -63,6 +36,9 @@ sudo apt install uhd-host
 Once the images and firmware finish downloading, you can check if your SDR is properly detected by UHD.  
 
 #### Verifying correct USRP operation
+
+### Genuine USRP B210
+If you have a genuine Ettus USRP B210, no further setup is required.
 
 ### LibreSDR B210 only
   
@@ -191,14 +167,13 @@ $ uhd_usrp_probe
 |   |   |   |   Gain Elements: None
 ```
 </details>
-This is the correct output for properly set up UHD.
-
-### Genuine USRP B210
-In the case of genuine USRPs, there's no need for replacing the FPGA images, it should work properly after running the python script.
+If properly set up, the command should return something like this.
 
 
 
-## Step 2, Option 2 (at your own risk) - overclocking
+## Option 2 - Overclocked USRP Hardware Driver (at your own risk)
+
+> ⚠ **WARNING** - Overclocking may cause damage to your SDR, do so at your own risk.
 
 To allow overclocking later in SatDump, you must build a fork of UHD that enables overclocking capabilities.
 
@@ -397,9 +372,25 @@ $ uhd_usrp_probe
 
 </details>
 
-## Step 3 - building SatDump with UHD support
+## Installing SatDump with UHD support
+<details>
 
-```bash
+<summary>SatDump v2.0.0 Dependencies - Debian, Ubuntu, and other Debian-based distros</summary>
+
+```
+sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
+                 libtiff-dev libjemalloc-dev libcurl4-openssl-dev libvolk-dev libnng-dev \
+                 libglfw3-dev zenity portaudio19-dev libzstd-dev libhdf5-dev librtlsdr-dev \
+                 libhackrf-dev libairspy-dev libairspyhf-dev libad9361-dev libiio-dev \
+                 libbladerf-dev libomp-dev ocl-icd-opencl-dev intel-opencl-icd mesa-opencl-icd \
+                 libdbus-1-dev libsqlite3-dev
+```
+</details>
+
+<details>
+<summary>Satdump v2.0.0 Building & Installation</summary>
+
+```
 git clone https://github.com/SatDump/SatDump.git
 cd SatDump
 mkdir build && cd build
@@ -421,6 +412,7 @@ sudo make install
 # Run (if you want!)
 ./satdump-ui
 ```
+</details>
 
 ## Common issues
 
@@ -484,12 +476,3 @@ uhd-oc branch:
 #### Caused by building SatDump before UHD. Rebuild and install SatDump once UHD is installed and verified.
 
 </details>
-
-
-
-
-
-
-
-
-
