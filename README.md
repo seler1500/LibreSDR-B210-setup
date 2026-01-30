@@ -3,11 +3,15 @@ Setting up LibreSDR B210 or genuine USRP B210 with uhd-oc and SatDump. I'm attem
 I'll be using SatDump v2.0.0 (verywip), as it was recently patched to improve USRP stability on most devices. 
 ###### This guide was tested on Ubuntu 24.04.5 LTS
 
+
+
 ## Prerequisites
 
 - Ubuntu Linux or another Debian-based distribution
 - either USRP LibreSDR B210 mini (XC7A100T+AD9361 ONLY)  
 - or genuine USRP B210 (overclocking not tested yet!)
+
+
 
 ## Credits and sources
 Initial setup, FPGA image:  
@@ -18,6 +22,8 @@ Building UHD:
 https://kb.ettus.com/Building_and_Installing_the_USRP_Open-Source_Toolchain_(UHD_and_GNU_Radio)_on_Linux  
 *A generic satellite data processing software*, SatDump:  
 https://github.com/SatDump/SatDump  
+
+
 
 ## Step 1 - Install SatDump dependencies
 <details>
@@ -33,6 +39,8 @@ sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
                  libdbus-1-dev libsqlite3-dev
 ```
 </details>
+
+
 
 ## Step 2, Option 1 - unmodified USRP Hardware Driver (no overclocking capabilities)
 #### Install UHD
@@ -50,26 +58,14 @@ sudo apt install uhd-host
 #### Install Python3 (if not already installed)  
 `sudo apt install python3`  
 #### Download firmware and FPGA images  
-`sudo /usr/lib/uhd/utils/uhd_images_downloader.py`       
+`sudo /usr/lib/uhd/utils/uhd_images_downloader.py`   
+
 Once the images and firmware finish downloading, you can check if your SDR is properly detected by UHD.  
 
-#### Verify if UHD was set up properly
+#### Verifying correct USRP operation
 
 ### LibreSDR B210 only
-
-<details><summary>Verify UHD installation</summary>
   
-```
-$ uhd_usrp_probe
-[INFO] [UHD] linux; GNU C++ version 13.3.0; Boost_108300; UHD_4.9.0.0-0ubuntu1~noble3
-[INFO] [B200] Loading firmware image: /usr/share/uhd/4.9.0/images/usrp_b200_fw.hex...
-[INFO] [B200] Detected Device: B210
-[INFO] [B200] Loading FPGA image: /usr/share/uhd/4.9.0/images/usrp_b210_fpga.bin...
-Error: RuntimeError: fx3 is in state 5
-```
-</details>
-This behaviour is expected, as Libre B210 requires a custom FPGA image to work properly.
-
 <details><summary>Replacing FPGA image</summary>
 
 ```bash
@@ -78,7 +74,7 @@ sudo cp usrp_b210_fpga.bin /usr/share/uhd/4.9.0/images/
 ```
 </details>
 <details>
-<summary>Now verify again:</summary>
+<summary>Terminal</summary>
   
 ```
 $ uhd_usrp_probe
@@ -200,6 +196,8 @@ This is the correct output for properly set up UHD.
 ### Genuine USRP B210
 In the case of genuine USRPs, there's no need for replacing the FPGA images, it should work properly after running the python script.
 
+
+
 ## Step 2, Option 2 (at your own risk) - overclocking
 
 To allow overclocking later in SatDump, you must build a fork of UHD that enables overclocking capabilities.
@@ -268,7 +266,7 @@ Please run:
 `sudo /usr/local/lib/uhd/utils/uhd_images_downloader.py`
 
 #### Applying udev rules
-On Linux, udev handles USB plug and unplug events. The following commands install a udev rule so that non-root users may access the device. 
+On Linux, udev handles USB plug and unplug events. The following commands install a udev rule so that non-root users may access the device. **Make sure any USRP devices are unplugged before applying!**
 
 `sudo cp /usr/local/lib/uhd/utils/uhd-usrp.rules /etc/udev/rules.d/10-uhd-usrp.rules`
 
@@ -424,7 +422,68 @@ sudo make install
 ./satdump-ui
 ```
 
+## Common issues
 
+<details><summary>Wrong FPGA image (LibreSDR B210)</summary>
+  
+```
+$ uhd_usrp_probe
+[INFO] [UHD] linux; GNU C++ version 13.3.0; Boost_108300; UHD_4.9.0.0-0ubuntu1~noble3
+[INFO] [B200] Loading firmware image: /usr/share/uhd/4.9.0/images/usrp_b200_fw.hex...
+[INFO] [B200] Detected Device: B210
+[INFO] [B200] Loading FPGA image: /usr/share/uhd/4.9.0/images/usrp_b210_fpga.bin...
+Error: RuntimeError: fx3 is in state 5
+```
+#### Solution: download and replace the FPGA image:
+
+```bash
+wget https://github.com/lmesserStep/LibreSDRB210/raw/main/usrp_b210_fpga.bin
+sudo cp usrp_b210_fpga.bin /usr/share/uhd/4.9.0/images/
+```
+</details>
+
+<details><summary>Missing firmware and FPGA images</summary>
+  
+```
+$ uhd_usrp_probe
+[INFO] [UHD] linux; GNU C++ version 13.3.0; Boost_108300; UHD_4.9.0.0-0-3480b603
+[WARNING] [B200] EnvironmentError: IOError: Could not find path for image: usrp_b200_fw.hex
+
+Using images directory: <no images directory located>
+
+Set the environment variable 'UHD_IMAGES_DIR' appropriately or follow the below instructions to download the images package.
+
+Please run:
+
+ "/usr/local/lib/uhd/utils/uhd_images_downloader.py"
+```
+#### Solution: download firmware and images:
+`sudo /usr/local/lib/uhd/utils/uhd_images_downloader.py`
+</details>
+
+<details><summary>Failed to apply udev rules</summary>
+
+```
+$ uhd_usrp_probe
+[INFO] [UHD] linux; GNU C++ version 13.3.0; Boost_108300; UHD_4.9.0.0-0ubuntu1~noble3
+[ERROR] [USB] USB open failed: insufficient permissions.
+See the application notes for your device.
+
+Error: LookupEroor: KeyError: No devices found for ----->
+Empty Device Address
+```
+#### Make sure to unplug any USRPs, and apply the rules (reboot may be necessary afterwards).
+Unmodified UHD:  
+`sudo cp /usr/lib/uhd/utils/uhd-usrp.rules /etc/udev/rules.d/10-uhd-usrp.rules`  
+uhd-oc branch:  
+`sudo cp /usr/local/lib/uhd/utils/uhd-usrp.rules /etc/udev/rules.d/10-uhd-usrp.rules`  
+</details>
+
+<details><summary>SatDump not recognizing USRP, "USRP SDR" tab missing from Settings section</summary>
+  
+#### Caused by building SatDump before UHD. Rebuild and install SatDump once UHD is installed and verified.
+
+</details>
 
 
 
