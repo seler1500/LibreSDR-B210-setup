@@ -399,6 +399,7 @@ git switch verywip
 # If you do not want to build the GUI Version, add -DBUILD_GUI=OFF to the command
 # If you want to disable some SDRs, you can add -DPLUGIN_HACKRF_SDR_SUPPORT=OFF or similar
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+volk_profile
 make -j`nproc`
 
 # To run without installing
@@ -476,3 +477,28 @@ uhd-oc branch:
 #### Caused by building SatDump before UHD. Rebuild and install SatDump once UHD is installed and verified.
 
 </details>
+
+<details><summary>Random buffer overflows, high CPU usage</summary>  
+  
+#### Probable causes:
+  
+- you did not run `volk profile`. Do so, and restart SatDump once it's done,
+- BIOS settings (enable "best performance" or "maximum performance" in BIOS if possible),
+- background processes like `tracker-miner-fs-3` or `localsearch` (see below),
+- low quality USB-C cable.
+</details>
+
+## OS Optimization
+
+https://www.a-centauri.com/articoli/an-x-band-primer
+
+To disable tracker-miner on Ubuntu 24.04 i used:
+```bash
+systemctl --user mask tracker-miner-fs-3.service tracker-extract-3.service
+```
+On some newer Ubuntu versions `tracker-miner` was replaced with `localsearch`.
+Disabling it can cause Nautilus to become unstable, do so at your own risk.
+
+```bash
+systemctl --user mask localsearch localsearch-3 localsearch-extractor-3
+```
