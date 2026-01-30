@@ -14,6 +14,8 @@ Initial setup, FPGA image:
 https://github.com/lmesserStep/LibreSDRB210  
 Overclocking the B210:  
 https://github.com/MothMaux/uhd-oc  
+Building UHD:  
+https://kb.ettus.com/Building_and_Installing_the_USRP_Open-Source_Toolchain_(UHD_and_GNU_Radio)_on_Linux  
 *A generic satellite data processing software*, SatDump:  
 https://github.com/SatDump/SatDump  
 
@@ -32,7 +34,7 @@ sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
 ```
 </details>
 
-## Option 1 - unmodified USRP Hardware Driver (no overclocking)
+## Step 2, Option 1 - unmodified USRP Hardware Driver (no overclocking)
 #### Install UHD
 <details>
 
@@ -53,7 +55,7 @@ Once the images and firmware finish downloading, you can check if your SDR is pr
 
 #### Verify if UHD was set up properly
 
-### LibreSDR B210
+### LibreSDR B210 only
 
 <details><summary>Verify UHD installation</summary>
   
@@ -198,19 +200,19 @@ This is the correct output for properly set up UHD.
 ### Genuine USRP B210
 In the case of genuine USRPs, there's no need for replacing the FPGA images, it should work properly after downloading the firmware and images.
 
-## Option 2 (at your own risk) - overclocking
+## Step 2, Option 2 (at your own risk) - overclocking
 
 #### Installing dependencies
 
 <details><summary>Ubuntu 24.04</summary>
   
-```
+```bash
 sudo apt-get -y install autoconf automake build-essential ccache cmake cpufrequtils doxygen ethtool fort77 g++ gir1.2-gtk-3.0 git gobject-introspection gpsd gpsd-clients inetutils-tools libasound2-dev libboost-all-dev libcomedi-dev libcppunit-dev libfftw3-bin libfftw3-dev libfftw3-doc libfontconfig1-dev libgmp-dev libgps-dev libgsl-dev liblog4cpp5-dev libncurses6 libncurses-dev libpulse-dev libqt5opengl5-dev libqwt-qt5-dev libsdl1.2-dev libtool libudev-dev libusb-1.0-0 libusb-1.0-0-dev libusb-dev libxi-dev libxrender-dev libzmq3-dev libzmq5 ncurses-bin python3-cheetah python3-click python3-click-plugins python3-click-threading python3-dev python3-docutils python3-gi python3-gi-cairo python3-gps python3-lxml python3-mako python3-numpy python3-opengl python3-pyqt5 python3-requests python3-scipy python3-setuptools python3-six python3-sphinx python3-yaml python3-zmq python3-ruamel.yaml swig wget python3-pygccxml libjs-mathjax python3-pyqtgraph
 ```
 </details>
 <details><summary>Ubuntu 22.04</summary>
   
-```
+```bash
 sudo apt-get -y install autoconf automake build-essential ccache cmake cpufrequtils doxygen ethtool fort77 g++ gir1.2-gtk-3.0 git gobject-introspection gpsd gpsd-clients inetutils-tools libasound2-dev libboost-all-dev libcomedi-dev libcppunit-dev libfftw3-bin libfftw3-dev libfftw3-doc libfontconfig1-dev libgmp-dev libgps-dev libgsl-dev liblog4cpp5-dev libncurses5 libncurses5-dev libpulse-dev libqt5opengl5-dev libqwt-qt5-dev libsdl1.2-dev libtool libudev-dev libusb-1.0-0 libusb-1.0-0-dev libusb-dev libxi-dev libxrender-dev libzmq3-dev libzmq5 ncurses-bin python3-cheetah python3-click python3-click-plugins python3-click-threading python3-dev python3-docutils python3-gi python3-gi-cairo python3-gps python3-lxml python3-mako python3-numpy python3-opengl python3-pyqt5 python3-requests python3-scipy python3-setuptools python3-six python3-sphinx python3-yaml python3-zmq python3-ruamel.yaml swig wget
 ```
 </details>
@@ -255,6 +257,167 @@ Please run:
 #### Downloading firmware and FPGA images
 
 `sudo /usr/local/lib/uhd/utils/uhd_images_downloader.py`
+
+#### Applying udev rules
+On Linux, udev handles USB plug and unplug events. The following commands install a udev rule so that non-root users may access the device. 
+
+`sudo cp /usr/local/lib/uhd/utils/uhd-usrp.rules /etc/udev/rules.d/10-uhd-usrp.rules`
+
+#### Replacing FPGA image (LibreSDR B210 only)
+
+```bash
+wget https://github.com/lmesserStep/LibreSDRB210/raw/main/usrp_b210_fpga.bin
+sudo cp usrp_b210_fpga.bin /usr/local/share/uhd/images/
+```
+#### Verifying correct USRP operation
+<details><summary>Terminal</summary>
+
+```
+$ uhd_usrp_probe
+[INFO] [UHD] linux; GNU C++ version 13.3.0; Boost_108300; UHD_4.9.0.0-0-3480b603
+[INFO] [B200] Loading firmware image: /usr/local/share/uhd/images/usrp_b200_fw.hex...
+[INFO] [B200] Detected Device: B210
+[INFO] [B200] Loading FPGA image: /usr/local/share/uhd/images/usrp_b210_fpga.bin...
+[INFO] [B200] Operating over USB 3.
+[INFO] [B200] Detecting internal GPSDO.... 
+[INFO] [GPS] No GPSDO found
+[INFO] [B200] Initialize CODEC control...
+[INFO] [B200] Initialize Radio control...
+[INFO] [B200] Performing register loopback test... 
+[INFO] [B200] Register loopback test passed
+[INFO] [B200] Performing register loopback test... 
+[INFO] [B200] Register loopback test passed
+[INFO] [B200] Setting master clock rate selection to 'automatic'.
+[INFO] [B200] Asking for clock rate 16.000000 MHz... 
+[INFO] [B200] Actually got clock rate 16.000000 MHz.
+  _____________________________________________________
+ /
+|       Device: B-Series Device
+|     _____________________________________________________
+|    /
+|   |       Mboard: B210
+|   |   serial: *******
+|   |   name: LibreSDR_B210mini
+|   |   product: 2
+|   |   revision: 4
+|   |   FW Version: 8.0
+|   |   FPGA Version: 16.0
+|   |   
+|   |   Time sources:  none, internal, external, gpsdo
+|   |   Clock sources: internal, external, gpsdo
+|   |   Sensors: ref_locked
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX DSP: 0
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX DSP: 1
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX Dboard: A
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Frontend: A
+|   |   |   |   Name: FE-RX2
+|   |   |   |   Antennas: TX/RX, RX2
+|   |   |   |   Sensors: temp, rssi, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Frontend: B
+|   |   |   |   Name: FE-RX1
+|   |   |   |   Antennas: TX/RX, RX2
+|   |   |   |   Sensors: temp, rssi, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Codec: A
+|   |   |   |   Name: B210 RX dual ADC
+|   |   |   |   Gain Elements: None
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX DSP: 0
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX DSP: 1
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX Dboard: A
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Frontend: A
+|   |   |   |   Name: FE-TX2
+|   |   |   |   Antennas: TX/RX
+|   |   |   |   Sensors: temp, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Frontend: B
+|   |   |   |   Name: FE-TX1
+|   |   |   |   Antennas: TX/RX
+|   |   |   |   Sensors: temp, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Codec: A
+|   |   |   |   Name: B210 TX dual DAC
+|   |   |   |   Gain Elements: None
+```
+
+</details>
+
+## Step 3 - building SatDump with UHD support
+
+```bash
+git clone https://github.com/SatDump/SatDump.git
+cd SatDump
+mkdir build && cd build
+# Switch branch to verywip (v2.0.0)
+git switch verywip
+# If you do not want to build the GUI Version, add -DBUILD_GUI=OFF to the command
+# If you want to disable some SDRs, you can add -DPLUGIN_HACKRF_SDR_SUPPORT=OFF or similar
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+make -j`nproc`
+
+# To run without installing
+ln -s ../pipelines .        # Symlink pipelines so it can run
+ln -s ../resources .        # Symlink resources so it can run
+ln -s ../satdump_cfg.json . # Symlink settings so it can run
+
+# To install system-wide
+sudo make install
+
+# Run (if you want!)
+./satdump-ui
+```
+
+
+
+
 
 
 
