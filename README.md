@@ -17,17 +17,7 @@ https://github.com/MothMaux/uhd-oc
 *A generic satellite data processing software*, SatDump:  
 https://github.com/SatDump/SatDump  
 
-## Step 1 - Install UHD and SatDump dependencies
-<details>
-
-<summary>Unmodified USRP Hardware Driver</summary>
-
-```
-sudo add-apt-repository ppa:ettusresearch/uhd 
-sudo apt update 
-sudo apt install uhd-host
-```
-</details>
+## Step 1 - Install SatDump dependencies
 <details>
 
 <summary>SatDump v2.0.0 Dependencies - Debian, Ubuntu, and other Debian-based distros</summary>
@@ -42,15 +32,24 @@ sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
 ```
 </details>
 
-## Step 2 - UHD Setup
-First, you'll need to set up unomdified USRP Hardware Driver. 
-After installing it in step 1, you'll need to download firmware and FPGA images.
+## Option 1 - unmodified USRP Hardware Driver (no overclocking)
+#### Install UHD
+<details>
 
-#### Install Python3 (if not already installed)
-`sudo apt install python3`
-#### Download firmware and FPGA images
-`sudo /usr/lib/uhd/utils/uhd_images_downloader.py`   
-Once the images and firmware finish downloading, you can check if your SDR is properly detected by UHD.
+<summary>Terminal</summary>
+
+```
+sudo add-apt-repository ppa:ettusresearch/uhd 
+sudo apt update 
+sudo apt install uhd-host
+```
+</details>
+
+#### Install Python3 (if not already installed)  
+`sudo apt install python3`  
+#### Download firmware and FPGA images  
+`sudo /usr/lib/uhd/utils/uhd_images_downloader.py`       
+Once the images and firmware finish downloading, you can check if your SDR is properly detected by UHD.  
 
 #### Verify if UHD was set up properly
 
@@ -199,9 +198,24 @@ This is the correct output for properly set up UHD.
 ### Genuine USRP B210
 In the case of genuine USRPs, there's no need for replacing the FPGA images, it should work properly after downloading the firmware and images.
 
-## Step 3 (optional and at your own risk) - overclocking
+## Option 2 (at your own risk) - overclocking
 
-#### Building custom UHD with overclocking support
+#### Installing dependencies
+
+<details><summary>Ubuntu 24.04</summary>
+  
+```
+sudo apt-get -y install autoconf automake build-essential ccache cmake cpufrequtils doxygen ethtool fort77 g++ gir1.2-gtk-3.0 git gobject-introspection gpsd gpsd-clients inetutils-tools libasound2-dev libboost-all-dev libcomedi-dev libcppunit-dev libfftw3-bin libfftw3-dev libfftw3-doc libfontconfig1-dev libgmp-dev libgps-dev libgsl-dev liblog4cpp5-dev libncurses6 libncurses-dev libpulse-dev libqt5opengl5-dev libqwt-qt5-dev libsdl1.2-dev libtool libudev-dev libusb-1.0-0 libusb-1.0-0-dev libusb-dev libxi-dev libxrender-dev libzmq3-dev libzmq5 ncurses-bin python3-cheetah python3-click python3-click-plugins python3-click-threading python3-dev python3-docutils python3-gi python3-gi-cairo python3-gps python3-lxml python3-mako python3-numpy python3-opengl python3-pyqt5 python3-requests python3-scipy python3-setuptools python3-six python3-sphinx python3-yaml python3-zmq python3-ruamel.yaml swig wget python3-pygccxml libjs-mathjax python3-pyqtgraph
+```
+</details>
+<details><summary>Ubuntu 22.04</summary>
+  
+```
+sudo apt-get -y install autoconf automake build-essential ccache cmake cpufrequtils doxygen ethtool fort77 g++ gir1.2-gtk-3.0 git gobject-introspection gpsd gpsd-clients inetutils-tools libasound2-dev libboost-all-dev libcomedi-dev libcppunit-dev libfftw3-bin libfftw3-dev libfftw3-doc libfontconfig1-dev libgmp-dev libgps-dev libgsl-dev liblog4cpp5-dev libncurses5 libncurses5-dev libpulse-dev libqt5opengl5-dev libqwt-qt5-dev libsdl1.2-dev libtool libudev-dev libusb-1.0-0 libusb-1.0-0-dev libusb-dev libxi-dev libxrender-dev libzmq3-dev libzmq5 ncurses-bin python3-cheetah python3-click python3-click-plugins python3-click-threading python3-dev python3-docutils python3-gi python3-gi-cairo python3-gps python3-lxml python3-mako python3-numpy python3-opengl python3-pyqt5 python3-requests python3-scipy python3-setuptools python3-six python3-sphinx python3-yaml python3-zmq python3-ruamel.yaml swig wget
+```
+</details>
+
+#### Building
 
 <details><summary>Terminal</summary>
   
@@ -217,14 +231,33 @@ sudo ldconfig #reload libraries
 ```
 </details>
 
-For now all you can do is verify, if the custom build was installed properly.
+#### Verifying the installation
 
 <details><summary>Terminal</summary>
   
-```bash
-uhd_usrp_probe
 ```
+$ uhd_usrp_probe
+[INFO] [UHD] linux; GNU C++ version 13.3.0; Boost_108300; UHD_4.9.0.0-0-3480b603
+[WARNING] [B200] EnvironmentError: IOError: Could not find path for image: usrp_b200_fw.hex
+
+Using images directory: <no images directory located>
+
+Set the environment variable 'UHD_IMAGES_DIR' appropriately or follow the below instructions to download the images package.
+
+Please run:
+
+ "/usr/local/lib/uhd/utils/uhd_images_downloader.py"
+```
+
+
 </details>
+
+#### Downloading firmware and FPGA images
+
+`sudo /usr/local/lib/uhd/utils/uhd_images_downloader.py`
+
+
+
 
 
 
