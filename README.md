@@ -1,7 +1,7 @@
 # LibreSDR B210 and USRP B210 setup
 Guide to set up Ettus USRP B210 or LibreSDR B210 with uhd-oc and SatDump on Debian/Ubuntu. I'm attempting to make a single guide to simplify the process, resources used in this guide are listed below.
 I'll be using SatDump v2.0.0 (verywip), as it was recently patched to improve USRP stability on most devices. 
-###### For Deb/Ubuntu - tested on Ubuntu 24.04.5 LTS
+###### For Deb/Ubuntu - tested on Ubuntu 24.04.3 LTS
 
 
 ## Credits and sources
