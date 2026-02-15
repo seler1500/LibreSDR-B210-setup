@@ -417,6 +417,23 @@ sudo make install
 
 ## Common issues
 
+<details><summary>Arch Linux: error while loading shared libraries (libuhd.so)</summary>
+  
+```text
+uhd_usrp_probe: error while loading shared libraries: libuhd.so.4.9.0: cannot open shared object file: No such file or directory
+```
+Caused by Arch Linux not including /usr/local/lib in the default dynamic linker search path after building uhd-oc from source.
+
+Solution: Add the directory to the linker configuration and reload the cache.
+```
+echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/usr-local.conf
+sudo ldconfig
+```
+After this, proceed as normal.
+
+</details>
+
+
 <details><summary>Wrong FPGA image (LibreSDR B210)</summary>
   
 ```
