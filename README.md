@@ -1,6 +1,6 @@
 # LibreSDR B210 and USRP B210 setup
 Guide to set up Ettus USRP B210 or LibreSDR B210 with uhd-oc and SatDump on Debian/Ubuntu. I'm attempting to make a single guide to simplify the process, resources used in this guide are listed below.
-I'll be using SatDump v2.0.0 (verywip), as it was recently patched to improve USRP stability on most devices. 
+I'll be using SatDump v2.0.0, as it was recently patched to improve USRP stability on most devices. 
 ###### For Deb/Ubuntu - tested on Ubuntu 24.04.3 LTS
 
 
@@ -383,7 +383,7 @@ sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
                  libglfw3-dev zenity portaudio19-dev libzstd-dev libhdf5-dev librtlsdr-dev \
                  libhackrf-dev libairspy-dev libairspyhf-dev libad9361-dev libiio-dev \
                  libbladerf-dev libomp-dev ocl-icd-opencl-dev intel-opencl-icd mesa-opencl-icd \
-                 libdbus-1-dev libsqlite3-dev
+                 libdbus-1-dev libarmadillo-dev libsqlite3-dev
 ```
 </details>
 
@@ -394,16 +394,12 @@ sudo apt install git build-essential cmake g++ pkgconf libfftw3-dev libpng-dev \
 git clone https://github.com/SatDump/SatDump.git
 cd SatDump
 mkdir build && cd build
-# Switch branch to verywip (v2.0.0)
-git switch verywip
 # If you do not want to build the GUI Version, add -DBUILD_GUI=OFF to the command
 # If you want to disable some SDRs, you can add -DPLUGIN_HACKRF_SDR_SUPPORT=OFF or similar
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
-volk_profile
 make -j`nproc`
 
 # To run without installing
-ln -s ../pipelines .        # Symlink pipelines so it can run
 ln -s ../resources .        # Symlink resources so it can run
 ln -s ../satdump_cfg.json . # Symlink settings so it can run
 
